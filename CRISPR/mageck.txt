@@ -6,5 +6,6 @@ It also create a "Snakemake" file which has different commands.
 
 2. snakemake
 After runing this command you need to run "snakemake" command. snakemake execute different command available in "Snakemake" file.
+You also need a designmatrix, which depicts the experimental setup.
 
 Examples files are available in this folder.

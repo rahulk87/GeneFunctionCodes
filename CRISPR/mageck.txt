@@ -1,0 +1,10 @@
+1. mageck-vispr init path/to/my/workflow --reads path/to/sample1.fastq path/to/sample2.fastq
+You need to run this commsnd first, which creates config.yaml file. config.yaml is not reasy to go, you would also need to do
+some changes in config.yaml like path guide RNA library, designmetrix, length of guide RNA etc.
+
+It also create a "Snakemake" file which has different commands.
+
+2. snakemake
+After runing this command you need to run "snakemake" command. snakemake execute different command available in "Snakemake" file.
+
+Examples files are available in this folder.

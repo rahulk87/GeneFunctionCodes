@@ -1,0 +1,177 @@
+#vim: set syntax=python
+
+__author__ = "Johannes Köster"
+__copyright__ = "Copyright 2015, Johannes Köster, Liu lab"
+__email__ = "koester@jimmy.harvard.edu"
+__license__ = "MIT"
+
+"""
+A CRISPR/Cas9 analysis workflow using MAGeCK, FastQC and VISPR.
+"""
+
+
+configfile: "config.yaml"
+
+
+import sys
+import yaml
+from mageck_vispr import (postprocess_config, vispr_config, get_fastq,
+                          annotation_available, get_counts,
+                          get_norm_method, COMBAT_SCRIPT_PATH)
+
+
+postprocess_config(config)
+
+
+rule all:
+    input:
+        expand("results/{experiment}.vispr.yaml", experiment=config["experiments"])
+
+if "samples" in config:
+    rule fastqc:
+        input:
+            lambda wildcards: config["replicates"][wildcards.replicate]
+        output:
+            "results/qc/{replicate}"
+        log:
+            "logs/fastqc/{replicate}.log"
+        shell:
+            "mkdir -p {output}; rm -rf {output}/*; "
+            "fastqc -f fastq --extract -o {output} {input} 2> {log}"
+
+
+    if "adapter" in config["sgrnas"]:
+        rule cutadapt:
+            input:
+                lambda wildcards: config["replicates"][wildcards.replicate]
+            output:
+                "results/trimmed_reads/{replicate}.fastq"
+            shell:
+                "cutadapt -a {config[sgrnas][adapter]} {input} > {output}"
+
+
+    rule mageck_count:
+        input:
+            fastqs=[get_fastq(rep, config) for rep in config["replicates"]],
+            library=config["library"]
+        output:
+            "results/count/all.count.txt",
+            "results/count/all.count_normalized.txt",
+            "results/count/all.countsummary.txt"
+        params:
+            labels=",".join(config["samples"].keys()),
+            fastqs=" ".join(
+                ",".join(get_fastq(rep, config) for rep in replicates)
+                for replicates in config["samples"].values()),
+            prefix="results/count/all"
+        log:
+            "logs/mageck/count/all.log"
+        shell:
+            "mageck count --output-prefix {params.prefix} "
+            "--list-seq {input.library} "
+            "--fastq {params.fastqs} --sample-label {params.labels} "
+            "--trim-5 {config[sgrnas][trim-5]} 2> {log}"
+
+
+if "library" in config:
+    rule annotate_sgrnas:
+        input:
+            config["library"]
+        output:
+            "annotation/sgrnas.bed"
+        log:
+            "logs/annotation/sgrnas.log"
+        shell:
+            "mageck-vispr annotate-library {input} "
+            "--sgrna-len {config[sgrnas][len]} --assembly {config[assembly]} "
+            "> {output} 2> {log}"
+
+
+if "batchmatrix" in config:
+    rule remove_batch:
+        input:
+            counts=config.get("counts", "results/count/all.count_normalized.txt"),
+            batchmatrix=config["batchmatrix"]
+        output:
+            "results/count/all.count.batchcorrected.txt"
+        log:
+            "logs/combat.log"
+        script:
+            COMBAT_SCRIPT_PATH
+
+
+ruleorder: mageck_mle > mageck_rra
+
+
+rule mageck_rra:
+    input:
+        counts=get_counts(config),
+    output:
+        "results/test/{experiment}.gene_summary.txt",
+        "results/test/{experiment}.sgrna_summary.txt"
+    params:
+        prefix="results/test/{experiment}",
+        treatment=lambda wildcards: ",".join(config["experiments"][wildcards.experiment]["treatment"]),
+        control=lambda wildcards: ",".join(config["experiments"][wildcards.experiment]["control"]),
+        norm=get_norm_method(config)
+    log:
+        "logs/mageck/test/{experiment}.log"
+    shell:
+        "mageck test --norm-method {params.norm} "
+        "--output-prefix {params.prefix} "
+        "--count-table {input} --treatment-id {params.treatment} "
+        "--control-id {params.control} 2> {log}"
+
+
+rule mageck_mle:
+    input:
+        counts=get_counts(config),
+        designmatrix=lambda wildcards: config["experiments"][wildcards.experiment]["designmatrix"],
+        annotation="annotation/sgrnas.bed" if annotation_available(config) else []
+    output:
+        "results/test/{experiment}.gene_summary.txt",
+        "results/test/{experiment}.sgrna_summary.txt"
+    params:
+        prefix="results/test/{experiment}",
+        efficiency=(
+            "" if not annotation_available(config)
+            else "--sgrna-eff-name-column 3 "
+                 "--sgrna-eff-score-column 4 "
+                 "--sgrna-efficiency annotation/sgrnas.bed"),
+        update_efficiency=(
+            "" if not config["sgrnas"].get("update-efficiency", False)
+            else "--update-efficiency"),
+        norm=get_norm_method(config)
+    log:
+        "logs/mageck/test/{experiment}.log"
+    shell:
+        "mageck mle --norm-method {params.norm} "
+        "--output-prefix {params.prefix} {params.efficiency} --genes-var 0 "
+        "{params.update_efficiency} --count-table {input.counts} "
+        "--design-matrix {input.designmatrix} 2> {log}"
+
+
+if "samples" in config:
+    rule vispr:
+        input:
+            "annotation/sgrnas.bed" if annotation_available(config) else [],
+            results="results/test/{experiment}.gene_summary.txt",
+            sgrna_results="results/test/{experiment}.sgrna_summary.txt",
+            counts=get_counts(config, normalized=True),
+            mapstats="results/count/all.countsummary.txt",
+            fastqc=expand("results/qc/{replicate}", replicate=config["replicates"])
+        output:
+            "results/{experiment}.vispr.yaml"
+        run:
+            vispr_config(input, output, wildcards, config)
+else:
+    rule vispr:
+        input:
+            "annotation/sgrnas.bed" if annotation_available(config) else [],
+            results="results/test/{experiment}.gene_summary.txt",
+            sgrna_results="results/test/{experiment}.sgrna_summary.txt",
+            counts="results/count/all.count_normalized.txt"
+        output:
+            "results/{experiment}.vispr.yaml"
+        run:
+            vispr_config(input, output, wildcards, config)

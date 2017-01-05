@@ -1,0 +1,6 @@
+# IMPORTANT NOTE:
+# Before editing this file, save a copy with a file name like
+# resources_yymmdd.txt where yymmdd is the date.
+#
+budget_code	DBCDOBZAK
+crisp_screen_analysis_dir	/scratch/DBC/GENFUNC/CRISPR_SCREENS/analysis_results/D48/

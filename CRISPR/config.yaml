@@ -1,0 +1,61 @@
+# General configuration:
+
+# Path to library design file (csv format, columns: id, sequence, gene)
+library: /scratch/DBC/GENFUNC/CRISPR_SCREENS/crispr_libraries/Human_genome_library_guides_for_mageck.csv
+# Species to use for linkouts in VISPR (e.g. mus_musculus, homo_sapiens, ...)
+species: homo_sapiens
+# Genome assembly to use for linkouts in VISPR (e.g. hg19, hg38, mm9, mm10, ...)
+assembly: hg38
+
+# Configuration of knockout target display in VISPR
+targets:
+    # if screening genes, set this to true for proper linkouts to GeneMANIA and Ensembl in VISPR
+    genes: true
+    # file with genes to hide per default in VISPR (optional, one gene per line)
+    #controls: ribosomal_genes.txt
+
+# Configuration of sgRNAs
+sgrnas:
+    # estimate sgRNA knockout efficiency during EM-procedure of MAGeCK-MLE
+    update-efficiency: false
+    # trim the 5 prime end to get rid of barcode sequences in the reads
+    trim-5: 0
+    # specify the length of the sgRNAs (without PAM sequence)
+    len: 19
+    # sequencing adapter that shall be removed from reads before processing with MAGeCK (optional)
+    #adapter: ACGGCTAGCTGA
+
+# Configuration of samples
+samples:
+    # The following sample information was inferred from the given FASTQ files.
+    # Adjust it according to your needs (e.g. providing descriptive sample names and grouping replicates together).
+    T1:
+        - reads/T1.fastq
+    T0:
+        - reads/T0.fastq
+
+# Provide your own normalized count matrix (optional).
+# This will skip the mageck count step.
+# counts: all.count.txt
+
+# Provide a batch matrix if the samples need to be batch corrected (optional).
+# The format should be as follows (tab-separated):
+# sample          batch   covariate 1 ...
+# Sample 1        1       0           ...
+# Sample 2        2       0           ...
+# Sample 3        2       1           ...
+#
+# The first column must refer to the samples defined above.
+# batchmatrix: path/to/batchmatrix.txt
+
+# Configuration of experiments.
+# An experiment defines the comparison that shall be analyzed with MAGeCK.
+# You can define as many experiments as you want.
+# You can define both MAGeCK-RRA or MAGeCK-MLE experiments.
+experiments:
+    # provide a descriptive name for your experiment (it will show up in VISPR)
+    "myexperiment1":
+        # This is a MAGeCK-MLE experiment.
+        # Here, a design matrix has to be given (see http://liulab.dfci.harvard.edu/Mageck for details).
+        # Sample names in the design matrix must refer to the samples defined above.
+        designmatrix: designmatrix.txt

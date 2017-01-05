@@ -1,0 +1,13 @@
+	sample_id	tissue	cell_line	timepointStd	timepointIndex	replicate	replicate_group
+dmso_t0_a	dmso_t0_a	breast	dmso	t0	0	a	dmso_t0
+dmso_t0_b	dmso_t0_b	breast	dmso	t0	0	b	dmso_t0
+dmso_t1_a	dmso_t1_a	breast	dmso	t1	1	a	dmso_t1
+dmso_t1_b	dmso_t1_b	breast	dmso	t1	1	b	dmso_t1
+dmso_t2_a	dmso_t2_a	breast	dmso	t2	2	a	dmso_t2
+dmso_t2_b	dmso_t2_b	breast	dmso	t2	2	b	dmso_t2
+vx_t0_a	vx_t0_a	breast	vx	t0	0	a	vx_t0
+vx_t0_b	vx_t0_b	breast	vx	t0	0	b	vx_t0
+vx_t1_a	vx_t1_a	breast	vx	t1	1	a	vx_t1
+vx_t1_b	vx_t1_b	breast	vx	t1	1	b	vx_t1
+vx_t2_a	vx_t2_a	breast	vx	t2	2	a	vx_t2
+vx_t2_b	vx_t2_b	breast	vx	t2	2	b	vx_t2

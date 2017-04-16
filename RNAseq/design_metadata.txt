@@ -1,0 +1,7 @@
+design_cols	cellline	mutant	treatment
+htseq_COV_E7.txt	COV362	E7	E7
+htseq_COV_A4.txt	COV362	A4	A4
+htseq_COV_D11.txt	COV362	D11	D11
+htseq_SUM149_CAS9.txt	SUM149	Cas9	Cas9
+htseq_SUM149_TR1.txt	SUM149	TR1	TR1
+htseq_SUM149_TR2.txt	SUM149	TR2	TR2

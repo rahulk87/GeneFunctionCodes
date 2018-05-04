@@ -106,7 +106,7 @@ O=$path2/BTBC14_P.aln.sorted.RGfixed.rmdup_reordered.bam \
 R=$path3/Homo_sapiens.GRCh37.75.dna.primary_assembly_reordered.fa 
 
 /apps/samtools/1.2/bin/samtools index \
-$path2/BTBC14_P.aln.sorted.RGfixed.rmdup_reordered.bam \
+$path2/BTBC14_P.aln.sorted.RGfixed.rmdup_reordered.bam
 
 ## run realigner target creator
 /apps/java/jdk1.7.0_80/bin/java -Xmx64G -jar /apps/gatk3/3.4-0/GenomeAnalysisTK.jar \
@@ -128,7 +128,7 @@ $path2/BTBC14_P.aln.sorted.RGfixed.rmdup_reordered.bam \
 -targetIntervals $path2/BTBC14_P.forIndelRealigner.intervals \
 -known $path3/1000G_indels_for_realignment.b37.vcf \
 -L $path3/SureSelect_Exome_Capture_All_Tracks_v5_161011_mod.bed \
--o $path2/BTBC14_P.forIndelRealigner.bam \
+-o $path2/BTBC14_P.forIndelRealigner.bam
 
 ## run picard Sortsam
 /apps/java/jdk1.7.0_80/bin/java -Xmx64G -jar /apps/picard-tools/1.130/picard.jar SortSam \

@@ -2,7 +2,6 @@
 # extract ref and alt reads from a VCF file
 # write out the VCF file with columns appended
 # will also work with any VCF-like (e.g. merge) file
-# James Campbell, 26th Jul 2012
 # version 1.0
 
 use strict;
@@ -86,8 +85,6 @@ sub usage() {
 #------------------------#
 #  get_allele_freqs.pl   #
 #------------------------#
-
-James Campbell (james.campbell\@icr.ac.uk); Lina Yuan (lina.yuan\@icr.ac.uk)
 
 Usage:
 perl get_allele_freqs.pl [options]

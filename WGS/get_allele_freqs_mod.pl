@@ -1,8 +1,4 @@
 #!/usr/bin/perl -w
-# extract ref and alt reads from a VCF file
-# write out the VCF file with columns appended
-# will also work with any VCF-like (e.g. merge) file
-# version 1.0
 
 use strict;
 use Getopt::Long;
